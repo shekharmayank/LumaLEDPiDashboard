@@ -9,7 +9,7 @@ from luma.core.render import canvas
 from luma.core.legacy import text, show_message
 from luma.core.legacy.font import proportional, CP437_FONT, TINY_FONT
 
-from config import WIDTH, HEIGHT, TODO_SCROLL_SPEED, TODO_PAUSE_BETWEEN
+from config import WIDTH, HEIGHT, TODO_SCROLL_SPEED, TODO_PAUSE_BETWEEN, ANIMATIONS
 from models import get_items, get_pending_todos
 
 
@@ -19,6 +19,7 @@ class DisplayEngine(Thread):
         self.device = device
         self.reload = Event()
         self.stop = Event()
+        self._shown_animations = set()
 
     def run(self):
         while not self.stop.is_set():
@@ -29,6 +30,7 @@ class DisplayEngine(Thread):
                         return
                     if self.reload.is_set():
                         self.reload.clear()
+                        self._shown_animations.clear()
                         break
                     self._display_item(item)
             else:
@@ -59,6 +61,14 @@ class DisplayEngine(Thread):
             elif t == "animation":
                 name = item["config"].get("name", "plasma_swirl")
                 duration = item["duration"] or 14
+                if name == "random_unseen":
+                    pool = [a for a in ANIMATIONS if a != "random_unseen"]
+                    available = [a for a in pool if a not in self._shown_animations]
+                    if not available:
+                        self._shown_animations.clear()
+                        available = list(pool)
+                    name = random.choice(available)
+                    self._shown_animations.add(name)
                 anim = ANIM_FUNCS.get(name)
                 if anim:
                     anim(self.device, duration, self.reload, self.stop)

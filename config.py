@@ -28,6 +28,7 @@ ANIMATIONS = [
     "meteor_shower_v2",
     "firework_sparks",
     "breathe",
+    "random_unseen",
 ]
 
 TODO_SCROLL_SPEED = 4
