@@ -16,8 +16,8 @@ dashboard = "app:main"
 requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
-[tool.setuptools.packages.find]
-exclude = ["static", "templates"]
+[tool.setuptools]
+py-modules = ["app", "config", "display_engine", "models"]
 
 [tool.uv]
 package = true
