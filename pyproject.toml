@@ -13,4 +13,4 @@ dependencies = [
 dashboard = "app:main"
 
 [tool.uv]
-package = false
+package = true
