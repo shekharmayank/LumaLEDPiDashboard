@@ -1,7 +1,10 @@
 import atexit
 import json
+import logging
 
 from flask import Flask, render_template, request, redirect, url_for, jsonify
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 
 from config import DEVICE_CONFIG, SPI_CONFIG, ANIMATIONS
 from models import (
@@ -45,7 +48,8 @@ def start_display():
     global engine
     try:
         device = create_device()
-    except Exception:
+    except Exception as e:
+        logging.error("Failed to create LED device: %s", e)
         device = None
     if device is not None:
         engine = DisplayEngine(device)
