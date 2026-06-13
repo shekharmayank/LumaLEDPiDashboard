@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+    <h1>{% if item %}Edit Item{% else %}Add Item{% endif %}</h1>
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">Back</a>
+</div>
+
+<form method="POST" class="item-form">
+    <div class="form-group">
+        <label for="type">Type</label>
+        <select name="type" id="type-select" required>
+            <option value="">-- Select --</option>
+            <option value="time" {% if item and item.type == 'time' %}selected{% endif %}>Time</option>
+            <option value="date" {% if item and item.type == 'date' %}selected{% endif %}>Date</option>
+            <option value="animation" {% if item and item.type == 'animation' %}selected{% endif %}>Animation</option>
+            <option value="message" {% if item and item.type == 'message' %}selected{% endif %}>Message</option>
+            <option value="todo" {% if item and item.type == 'todo' %}selected{% endif %}>Todo List</option>
+        </select>
+    </div>
+
+    <div class="form-group type-config" id="anim-config" style="display:none">
+        <label for="name">Animation</label>
+        <select name="name">
+            {% for anim in anims %}
+            <option value="{{ anim }}" {% if item and item.config.get('name') == anim %}selected{% endif %}>{{ anim }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div class="form-group type-config" id="msg-config" style="display:none">
+        <label for="text">Message Text</label>
+        <input type="text" name="text" value="{{ item.config.get('text', '') if item else '' }}" placeholder="Enter message..." maxlength="255">
+    </div>
+
+    <div class="form-group type-config" id="duration-config">
+        <label for="duration">Duration (seconds)</label>
+        <input type="number" name="duration" id="duration-input" min="1" max="3600"
+               value="{{ item.duration if item and item.type != 'todo' else 10 }}"
+               placeholder="10">
+        <small class="hint">How long to display before moving to the next item.</small>
+    </div>
+
+    <div class="form-group" id="todo-hint" style="display:none">
+        <p class="hint">Todo list duration is automatic — it scrolls through all pending items.</p>
+    </div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn btn-primary">
+            {% if item %}Save Changes{% else %}Add to Playlist{% endif %}
+        </button>
+    </div>
+</form>
+
+<script>
+const typeSelect = document.getElementById('type-select');
+const animConfig = document.getElementById('anim-config');
+const msgConfig = document.getElementById('msg-config');
+const durationConfig = document.getElementById('duration-config');
+const durationInput = document.getElementById('duration-input');
+const todoHint = document.getElementById('todo-hint');
+
+function updateForm() {
+    const t = typeSelect.value;
+    animConfig.style.display = t === 'animation' ? 'block' : 'none';
+    msgConfig.style.display = t === 'message' ? 'block' : 'none';
+    todoHint.style.display = t === 'todo' ? 'block' : 'none';
+    if (t === 'todo') {
+        durationConfig.style.display = 'none';
+        durationInput.required = false;
+    } else if (t) {
+        durationConfig.style.display = 'block';
+        durationInput.required = true;
+    } else {
+        durationConfig.style.display = 'block';
+        durationInput.required = true;
+    }
+}
+
+typeSelect.addEventListener('change', updateForm);
+updateForm();
+</script>
+{% endblock %}

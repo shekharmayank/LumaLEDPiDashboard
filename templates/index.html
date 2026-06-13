@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+    <h1>Display Playlist</h1>
+    <a href="{{ url_for('item_new') }}" class="btn btn-primary">+ Add Item</a>
+</div>
+
+{% if items %}
+<div class="item-list" id="item-list">
+    {% for item in items %}
+    <div class="item-card" data-id="{{ item.id }}">
+        <div class="item-drag" data-handle>&#x2630;</div>
+        <div class="item-info">
+            <span class="item-type-badge type-{{ item.type }}">{{ item.type }}</span>
+            <span class="item-label">{{ item | item_label }}</span>
+        </div>
+        <div class="item-meta">
+            {% if item.type != 'todo' %}
+            <span class="item-duration">{{ item.duration }}s</span>
+            {% endif %}
+        </div>
+        <div class="item-actions">
+            <a href="{{ url_for('item_edit', item_id=item.id) }}" class="btn btn-sm">Edit</a>
+            <form method="POST" action="{{ url_for('item_delete', item_id=item.id) }}" class="inline-form">
+                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Remove this item?')">Delete</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="reorder-bar">
+    <button id="save-order" class="btn btn-primary" style="display:none">Save Order</button>
+</div>
+{% else %}
+<div class="empty-state">
+    <p>No items in the playlist yet.</p>
+    <p>Add a time display, animation, message, or todo list to get started.</p>
+</div>
+{% endif %}
+
+<script>
+const list = document.getElementById('item-list');
+let dragEl = null;
+let dragOverEl = null;
+
+if (list) {
+    list.querySelectorAll('[data-handle]').forEach(handle => {
+        handle.addEventListener('mousedown', () => {
+            const card = handle.closest('.item-card');
+            card.draggable = true;
+        });
+    });
+
+    list.addEventListener('dragstart', e => {
+        dragEl = e.target.closest('.item-card');
+        dragEl.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+    });
+
+    list.addEventListener('dragend', e => {
+        dragEl.classList.remove('dragging');
+        dragEl.draggable = false;
+        dragEl = null;
+        document.getElementById('save-order').style.display = 'block';
+        list.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+    });
+
+    list.addEventListener('dragover', e => {
+        e.preventDefault();
+        dragOverEl = e.target.closest('.item-card');
+        if (dragOverEl && dragOverEl !== dragEl) {
+            const rect = dragOverEl.getBoundingClientRect();
+            const mid = rect.top + rect.height / 2;
+            if (e.clientY < mid) {
+                list.insertBefore(dragEl, dragOverEl);
+            } else {
+                list.insertBefore(dragEl, dragOverEl.nextSibling);
+            }
+        }
+    });
+}
+
+document.getElementById('save-order')?.addEventListener('click', async () => {
+    const cards = list.querySelectorAll('.item-card');
+    const ids = Array.from(cards).map(c => parseInt(c.dataset.id));
+    await fetch('{{ url_for("api_reorder") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({item_ids: ids}),
+    });
+    document.getElementById('save-order').style.display = 'none';
+});
+</script>
+{% endblock %}

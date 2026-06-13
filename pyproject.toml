@@ -1,0 +1,16 @@
+[project]
+name = "led-matrix-dashboard"
+version = "0.1.0"
+description = "Web dashboard for Raspberry Pi LED matrix display"
+requires-python = ">=3.10"
+dependencies = [
+    "flask>=3.0",
+    "luma.core>=2.4.0",
+    "luma.led-matrix",
+]
+
+[project.scripts]
+dashboard = "app:main"
+
+[tool.uv]
+package = false

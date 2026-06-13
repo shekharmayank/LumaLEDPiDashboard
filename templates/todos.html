@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-header">
+    <h1>Todo List</h1>
+    <a href="{{ url_for('index') }}" class="btn btn-secondary">Playlist</a>
+</div>
+
+<form id="todo-form" class="todo-add-form">
+    <input type="text" id="todo-text" placeholder="Add a todo..." required>
+    <button type="submit" class="btn btn-primary">Add</button>
+</form>
+
+{% if items %}
+<div class="todo-list">
+    {% for item in items %}
+    <div class="todo-card {% if item.done %}done{% endif %}" data-id="{{ item.id }}">
+        <button class="todo-toggle" data-id="{{ item.id }}">
+            {% if item.done %}&#x2611;{% else %}&#x2610;{% endif %}
+        </button>
+        <span class="todo-text">{{ item.text }}</span>
+        <button class="todo-delete" data-id="{{ item.id }}">&times;</button>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+    <p>No todos yet.</p>
+</div>
+{% endif %}
+
+<script>
+async function api(path, method) {
+    await fetch(path, { method });
+}
+
+document.getElementById('todo-form')?.addEventListener('submit', async e => {
+    e.preventDefault();
+    const input = document.getElementById('todo-text');
+    const text = input.value.trim();
+    if (!text) return;
+    await fetch('{{ url_for("api_todos_add") }}', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({text}),
+    });
+    input.value = '';
+    location.reload();
+});
+
+document.querySelectorAll('.todo-toggle').forEach(btn => {
+    btn.addEventListener('click', () => {
+        api('{{ url_for("api_todos_toggle", todo_id=0) }}'.replace('/0', '/' + btn.dataset.id), 'POST')
+            .then(() => location.reload());
+    });
+});
+
+document.querySelectorAll('.todo-delete').forEach(btn => {
+    btn.addEventListener('click', () => {
+        if (confirm('Delete this todo?')) {
+            api('{{ url_for("api_todos_delete", todo_id=0) }}'.replace('/0', '/' + btn.dataset.id), 'POST')
+                .then(() => location.reload());
+        }
+    });
+});
+</script>
+{% endblock %}
