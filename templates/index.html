@@ -5,6 +5,12 @@
     <a href="{{ url_for('item_new') }}" class="btn btn-primary">+ Add Item</a>
 </div>
 
+<div class="brightness-control">
+    <label for="brightness-slider">Brightness</label>
+    <input type="range" id="brightness-slider" min="0" max="255" value="{{ DEVICE_CONFIG.contrast }}">
+    <span id="brightness-value">{{ DEVICE_CONFIG.contrast }}</span>
+</div>
+
 {% if items %}
 <div class="item-list" id="item-list">
     {% for item in items %}
@@ -91,5 +97,22 @@ document.getElementById('save-order')?.addEventListener('click', async () => {
     });
     document.getElementById('save-order').style.display = 'none';
 });
+
+const brightnessSlider = document.getElementById('brightness-slider');
+const brightnessValue = document.getElementById('brightness-value');
+let brightnessTimeout = null;
+if (brightnessSlider) {
+    brightnessSlider.addEventListener('input', () => {
+        brightnessValue.textContent = brightnessSlider.value;
+        clearTimeout(brightnessTimeout);
+        brightnessTimeout = setTimeout(async () => {
+            await fetch('{{ url_for("api_brightness") }}', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({contrast: parseInt(brightnessSlider.value)}),
+            });
+        }, 150);
+    });
+}
 </script>
 {% endblock %}

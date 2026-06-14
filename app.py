@@ -1,6 +1,7 @@
 import atexit
 import json
 import logging
+import os
 
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 
@@ -25,6 +26,7 @@ from display_engine import DisplayEngine
 
 app = Flask(__name__)
 engine = None
+device = None
 
 
 def create_device():
@@ -32,7 +34,7 @@ def create_device():
     from luma.core.interface.serial import spi, noop
 
     serial = spi(port=SPI_CONFIG["port"], device=SPI_CONFIG["device"], gpio=noop())
-    device = max7219(
+    dev = max7219(
         serial,
         cascaded=DEVICE_CONFIG["cascaded"],
         block_orientation=DEVICE_CONFIG["block_orientation"],
@@ -40,12 +42,12 @@ def create_device():
             "blocks_arranged_in_reverse_order"
         ],
     )
-    device.contrast(DEVICE_CONFIG["contrast"])
-    return device
+    dev.contrast(DEVICE_CONFIG["contrast"])
+    return dev
 
 
 def start_display():
-    global engine
+    global engine, device
     try:
         device = create_device()
     except Exception as e:
@@ -87,7 +89,7 @@ def item_label(item):
 @app.route("/")
 def index():
     items = get_items()
-    return render_template("index.html", items=items, anims=ANIMATIONS)
+    return render_template("index.html", items=items, anims=ANIMATIONS, DEVICE_CONFIG=DEVICE_CONFIG)
 
 
 @app.route("/item/new", methods=["GET", "POST"])
@@ -188,6 +190,29 @@ def api_status():
     return jsonify({
         "engine_alive": engine is not None and engine.is_alive(),
     })
+
+
+@app.route("/api/brightness", methods=["GET", "POST"])
+def api_brightness():
+    global device
+    if request.method == "GET":
+        return jsonify({"contrast": DEVICE_CONFIG.get("contrast", 16)})
+    data = request.get_json()
+    contrast = data.get("contrast")
+    if contrast is None:
+        return jsonify({"ok": False, "error": "missing contrast"}), 400
+    contrast = max(0, min(255, int(contrast)))
+    DEVICE_CONFIG["contrast"] = contrast
+    if device is not None:
+        device.contrast(contrast)
+    config_path = os.path.join(os.path.dirname(__file__), "config.py")
+    with open(config_path, "r") as f:
+        content = f.read()
+    import re
+    content = re.sub(r'"contrast":\s*\d+', f'"contrast": {contrast}', content)
+    with open(config_path, "w") as f:
+        f.write(content)
+    return jsonify({"ok": True, "contrast": contrast})
 
 
 def main():
