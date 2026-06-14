@@ -197,35 +197,30 @@ def abstract_flow(device, duration=14, reload_ev=None, stop_ev=None):
         time.sleep(delay)
 
 
-def floating_embers(device, duration=14, reload_ev=None, stop_ev=None):
+def serpentine(device, duration=14, reload_ev=None, stop_ev=None):
+    trail = []
+    head_x = 0.0
+    t = 0.0
     n, delay = _frame_range(duration, 30)
-    embers = []
-    for _ in range(6):
-        embers.append({
-            "x": random.uniform(0, WIDTH - 1),
-            "y": random.uniform(0, HEIGHT - 1),
-            "vx": random.uniform(-0.25, 0.25),
-            "vy": random.uniform(-0.15, 0.15),
-            "phase": random.uniform(0, 6.28),
-        })
-    for f in range(n):
+    for _ in range(n):
         if _check_events(reload_ev, stop_ev):
             return
+        t += 0.06
+        head_x += 0.35
+        if head_x > WIDTH + 3:
+            head_x = -3
+        head_y = (HEIGHT - 1) / 2 + math.sin(head_x * 0.4 + t * 1.0) * 2.5 + math.sin(t * 0.5) * 0.5
+        trail.insert(0, (head_x, head_y))
+        if len(trail) > 14:
+            trail.pop()
         with canvas(device) as draw:
-            for e in embers:
-                e["vx"] += random.uniform(-0.04, 0.04)
-                e["vy"] += random.uniform(-0.04, 0.04)
-                e["vx"] = max(-0.35, min(0.35, e["vx"]))
-                e["vy"] = max(-0.25, min(0.25, e["vy"]))
-                e["x"] += e["vx"]
-                e["y"] += e["vy"]
-                e["x"] = max(0, min(WIDTH - 1, e["x"]))
-                e["y"] = max(0, min(HEIGHT - 1, e["y"]))
-                ix, iy = int(round(e["x"])), int(round(e["y"]))
-                glow = abs(math.sin(f * 0.06 + e["phase"]))
-                if 0 <= ix < WIDTH and 0 <= iy < HEIGHT and glow > 0.3:
-                    draw.point((ix, iy), fill="white")
-                    if glow > 0.7:
+            for i, (px, py) in enumerate(trail):
+                ix, iy = int(round(px)), int(round(py))
+                if 0 <= ix < WIDTH and 0 <= iy < HEIGHT:
+                    fade = 1.0 - i / len(trail)
+                    if fade > 0.6:
+                        draw.point((ix, iy), fill="white")
+                    if fade > 0.8:
                         for dx, dy in [(1,0),(-1,0),(0,1),(0,-1)]:
                             if 0 <= ix+dx < WIDTH and 0 <= iy+dy < HEIGHT:
                                 draw.point((ix+dx, iy+dy), fill="white")
@@ -234,5 +229,5 @@ def floating_embers(device, duration=14, reload_ev=None, stop_ev=None):
 
 ANIM_FUNCS = {
     "abstract_flow": abstract_flow,
-    "floating_embers": floating_embers,
+    "serpentine": serpentine,
 }

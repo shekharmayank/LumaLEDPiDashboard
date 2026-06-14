@@ -20,7 +20,7 @@ SPI_CONFIG = {
 
 ANIMATIONS = [
     "abstract_flow",
-    "floating_embers",
+    "serpentine",
     "random_unseen",
 ]
 
