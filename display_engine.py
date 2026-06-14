@@ -68,6 +68,7 @@ class DisplayEngine(Thread):
                         available = list(pool)
                     name = random.choice(available)
                     self._shown_animations.add(name)
+                self._show_animation_name(name)
                 anim = ANIM_FUNCS.get(name)
                 if anim:
                     anim(self.device, duration, self.reload, self.stop)
@@ -83,6 +84,16 @@ class DisplayEngine(Thread):
                 self._show_todos()
         except Exception:
             pass
+
+    def _show_animation_name(self, name):
+        show_message(
+            self.device,
+            name,
+            fill="white",
+            font=proportional(CP437_FONT),
+            scroll_delay=0.05,
+        )
+        time.sleep(1.5)
 
     def _show_time(self, duration):
         end = time.time() + duration
