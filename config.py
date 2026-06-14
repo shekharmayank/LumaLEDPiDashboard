@@ -20,6 +20,8 @@ SPI_CONFIG = {
 
 ANIMATIONS = [
     "abstract_flow",
+    "pulse_moire",
+    "random_unseen",
 ]
 
 TODO_SCROLL_SPEED = 4

@@ -1,4 +1,5 @@
 import math
+import random
 import time
 from datetime import datetime
 from threading import Thread, Event
@@ -7,7 +8,7 @@ from luma.core.render import canvas
 from luma.core.legacy import text, show_message
 from luma.core.legacy.font import proportional, CP437_FONT, TINY_FONT
 
-from config import WIDTH, HEIGHT, TODO_SCROLL_SPEED, TODO_PAUSE_BETWEEN
+from config import WIDTH, HEIGHT, TODO_SCROLL_SPEED, TODO_PAUSE_BETWEEN, ANIMATIONS
 from models import get_items, get_pending_todos
 
 
@@ -17,6 +18,7 @@ class DisplayEngine(Thread):
         self.device = device
         self.reload = Event()
         self.stop = Event()
+        self._shown_animations = set()
 
     def run(self):
         while not self.stop.is_set():
@@ -27,6 +29,7 @@ class DisplayEngine(Thread):
                         return
                     if self.reload.is_set():
                         self.reload.clear()
+                        self._shown_animations.clear()
                         break
                     self._display_item(item)
             else:
@@ -57,6 +60,14 @@ class DisplayEngine(Thread):
             elif t == "animation":
                 name = item["config"].get("name", "abstract_flow")
                 duration = item["duration"] or 14
+                if name == "random_unseen":
+                    pool = [a for a in ANIMATIONS if a != "random_unseen"]
+                    available = [a for a in pool if a not in self._shown_animations]
+                    if not available:
+                        self._shown_animations.clear()
+                        available = list(pool)
+                    name = random.choice(available)
+                    self._shown_animations.add(name)
                 anim = ANIM_FUNCS.get(name)
                 if anim:
                     anim(self.device, duration, self.reload, self.stop)
@@ -186,6 +197,27 @@ def abstract_flow(device, duration=14, reload_ev=None, stop_ev=None):
         time.sleep(delay)
 
 
+def pulse_moire(device, duration=14, reload_ev=None, stop_ev=None):
+    t = 0.0
+    n, delay = _frame_range(duration, 30)
+    for _ in range(n):
+        if _check_events(reload_ev, stop_ev):
+            return
+        t += 0.05
+        with canvas(device) as draw:
+            for x in range(WIDTH):
+                for y in range(HEIGHT):
+                    ring = math.sin(math.hypot(x * 0.6, y * 1.2) - t * 1.2)
+                    diag = math.sin((x + y) * 0.35 + t * 0.9)
+                    vert = math.sin(x * 0.2 + t * 0.5)
+                    grid = math.sin(x * 0.15 + t * 0.3) * math.sin(y * 0.4 + t * 0.7)
+                    v = ring * 0.4 + diag * 0.3 + vert * 0.2 + grid * 0.1
+                    if v > 0.15:
+                        draw.point((x, y), fill="white")
+        time.sleep(delay)
+
+
 ANIM_FUNCS = {
     "abstract_flow": abstract_flow,
+    "pulse_moire": pulse_moire,
 }
