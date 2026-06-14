@@ -38,6 +38,19 @@ uv run python app.py
 
 The web server starts on `http://0.0.0.0:5000`. Open `http://raspberrypi.local:5000` from any device on the network.
 
+## Run on boot
+
+```bash
+chmod +x start_dashboard.sh
+crontab -e
+```
+
+Add the line:
+
+```
+@reboot /root/LumaLEDPiDashboard/start_dashboard.sh
+```
+
 ## Usage
 
 1. **Add items** to the playlist — choose from Time, Date, Animation, Message, or Todo List
