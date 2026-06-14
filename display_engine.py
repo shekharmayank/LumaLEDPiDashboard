@@ -194,7 +194,7 @@ def plasma_swirl(device, duration=14, reload_ev=None, stop_ev=None):
 def sine_worm(device, duration=14, reload_ev=None, stop_ev=None):
     """Multi-segment sine worm with body and trailing wisps."""
     t = 0.0
-    n, delay = _frame_range(duration, 28)
+    n, delay = _frame_range(duration, 30)
     for _ in range(n):
         if _check_events(reload_ev, stop_ev):
             return
@@ -216,7 +216,7 @@ def sine_worm(device, duration=14, reload_ev=None, stop_ev=None):
 def pendulum_wave(device, duration=14, reload_ev=None, stop_ev=None):
     """A wave of pendulums swinging with phase offset along x."""
     t = 0.0
-    n, delay = _frame_range(duration, 28)
+    n, delay = _frame_range(duration, 30)
     for _ in range(n):
         if _check_events(reload_ev, stop_ev):
             return
@@ -237,7 +237,7 @@ def pendulum_wave(device, duration=14, reload_ev=None, stop_ev=None):
 def aurora_wave(device, duration=14, reload_ev=None, stop_ev=None):
     """Layered aurora curtains with twinkling stars overhead."""
     t = 0.0
-    n, delay = _frame_range(duration, 28)
+    n, delay = _frame_range(duration, 30)
     stars = [(random.randint(0, WIDTH - 1), random.randint(0, 1), random.random())
              for _ in range(10)]
     for _ in range(n):
@@ -273,7 +273,7 @@ def galaxy_spiral(device, duration=14, reload_ev=None, stop_ev=None):
             "drift": random.uniform(-0.02, 0.02),
             "arm": random.choice([0, 1]),
         })
-    n, delay = _frame_range(duration, 26)
+    n, delay = _frame_range(duration, 30)
     for f in range(n):
         if _check_events(reload_ev, stop_ev):
             return
@@ -309,7 +309,7 @@ def matrix_rain_v2(device, duration=14, reload_ev=None, stop_ev=None):
             "len": random.randint(3, 7),
             "speed": random.uniform(0.4, 1.1),
         })
-    n, delay = _frame_range(duration, 28)
+    n, delay = _frame_range(duration, 30)
     for _ in range(n):
         if _check_events(reload_ev, stop_ev):
             return
@@ -432,7 +432,7 @@ def breathe(device, duration=12, reload_ev=None, stop_ev=None):
     """Breathing circle that pulses with double-beat rhythm and halo glow."""
     t = 0.0
     cx, cy = WIDTH // 2, HEIGHT // 2
-    n, delay = _frame_range(duration, 22)
+    n, delay = _frame_range(duration, 30)
     for _ in range(n):
         if _check_events(reload_ev, stop_ev):
             return
@@ -458,7 +458,7 @@ def breathe(device, duration=12, reload_ev=None, stop_ev=None):
 
 def beach_boat(device, duration=14, reload_ev=None, stop_ev=None):
     """Tropical beach: sun, drifting cloud, sailboat on rolling waves, palm tree."""
-    n, delay = _frame_range(duration, 24)
+    n, delay = _frame_range(duration, 30)
     cloud_x = 0
     boat_x = -4.0
     t = 0.0
@@ -519,7 +519,7 @@ def beach_boat(device, duration=14, reload_ev=None, stop_ev=None):
 
 def ocean_horizon(device, duration=14, reload_ev=None, stop_ev=None):
     """Night ocean: moon, twinkling stars, three layers of rolling waves."""
-    n, delay = _frame_range(duration, 24)
+    n, delay = _frame_range(duration, 30)
     stars = [(random.randint(0, WIDTH - 1), random.randint(0, 2), random.random())
              for _ in range(14)]
     moon_x, moon_y = 6, 1
@@ -564,7 +564,7 @@ def ocean_horizon(device, duration=14, reload_ev=None, stop_ev=None):
 
 def mountains_sunset(device, duration=14, reload_ev=None, stop_ev=None):
     """Layered mountain silhouettes with a setting sun, birds and a distant tree line."""
-    n, delay = _frame_range(duration, 22)
+    n, delay = _frame_range(duration, 30)
     for f in range(n):
         if _check_events(reload_ev, stop_ev):
             return
@@ -597,7 +597,7 @@ def mountains_sunset(device, duration=14, reload_ev=None, stop_ev=None):
 
 def campfire(device, duration=14, reload_ev=None, stop_ev=None):
     """Flickering campfire with flames, logs, and rising embers."""
-    n, delay = _frame_range(duration, 28)
+    n, delay = _frame_range(duration, 30)
     embers = []
     for _ in range(6):
         embers.append({
@@ -654,7 +654,7 @@ def campfire(device, duration=14, reload_ev=None, stop_ev=None):
 
 def rainy_window(device, duration=14, reload_ev=None, stop_ev=None):
     """Streaks of rain on a window with drops sliding and splashing."""
-    n, delay = _frame_range(duration, 28)
+    n, delay = _frame_range(duration, 30)
     drops = []
     for _ in range(14):
         drops.append({
@@ -688,7 +688,7 @@ def city_skyline(device, duration=14, reload_ev=None, stop_ev=None):
     """City skyline silhouette with twinkling windows and slow scrolling moon."""
     heights = [3, 5, 2, 6, 4, 7, 3, 5, 4, 6, 2, 5, 3, 7, 4, 5,
                3, 6, 4, 2, 5, 7, 3, 4, 5, 6, 2, 4, 3, 5, 6, 4]
-    n, delay = _frame_range(duration, 22)
+    n, delay = _frame_range(duration, 30)
     moon_x = 0
     windows = {}
     for x in range(WIDTH):
@@ -719,7 +719,7 @@ def city_skyline(device, duration=14, reload_ev=None, stop_ev=None):
 
 def cherry_blossom(device, duration=14, reload_ev=None, stop_ev=None):
     """Falling cherry blossom petals swaying in the wind."""
-    n, delay = _frame_range(duration, 24)
+    n, delay = _frame_range(duration, 30)
     petals = []
     for _ in range(10):
         petals.append({
@@ -757,7 +757,7 @@ def cherry_blossom(device, duration=14, reload_ev=None, stop_ev=None):
 
 def lightning_storm(device, duration=14, reload_ev=None, stop_ev=None):
     """Dark clouds with periodic lightning flashes and falling rain."""
-    n, delay = _frame_range(duration, 28)
+    n, delay = _frame_range(duration, 30)
     rain = []
     for _ in range(20):
         rain.append({
@@ -817,7 +817,7 @@ def lightning_storm(device, duration=14, reload_ev=None, stop_ev=None):
 
 def pacman_chase(device, duration=14, reload_ev=None, stop_ev=None):
     """Pacman chomping across the screen eating dots, then resetting."""
-    n, delay = _frame_range(duration, 22)
+    n, delay = _frame_range(duration, 30)
     period = max(30, n // 2)
     for f in range(n):
         if _check_events(reload_ev, stop_ev):
@@ -855,7 +855,7 @@ def pacman_chase(device, duration=14, reload_ev=None, stop_ev=None):
 
 def walking_man(device, duration=14, reload_ev=None, stop_ev=None):
     """Stick figure walking across the screen with leg/arm swing, looping."""
-    n, delay = _frame_range(duration, 24)
+    n, delay = _frame_range(duration, 30)
     WALK = [
         [
             "..X..",
@@ -968,7 +968,7 @@ def bouncing_ball(device, duration=14, reload_ev=None, stop_ev=None):
 
 def space_invader(device, duration=14, reload_ev=None, stop_ev=None):
     """Classic space invader marching back and forth, with bomb drops."""
-    n, delay = _frame_range(duration, 24)
+    n, delay = _frame_range(duration, 30)
     SPRITE_A = [
         "..X...X..",
         ".........X",
@@ -1024,7 +1024,7 @@ def space_invader(device, duration=14, reload_ev=None, stop_ev=None):
 
 def dancing_skeleton(device, duration=14, reload_ev=None, stop_ev=None):
     """Stick figure dancing through 4 dance poses with a pulsing ground line."""
-    n, delay = _frame_range(duration, 22)
+    n, delay = _frame_range(duration, 30)
     frames = [
         [
             "..X..",
@@ -1078,7 +1078,7 @@ def dancing_skeleton(device, duration=14, reload_ev=None, stop_ev=None):
 
 def snake_game(device, duration=14, reload_ev=None, stop_ev=None):
     """Self-playing snake game with growing body and food pellets."""
-    n, delay = _frame_range(duration, 22)
+    n, delay = _frame_range(duration, 30)
     snake = [(5, 4), (4, 4), (3, 4)]
     direction = (1, 0)
     food = (20, 4)
@@ -1130,7 +1130,7 @@ def snake_game(device, duration=14, reload_ev=None, stop_ev=None):
 
 def dna_helix(device, duration=14, reload_ev=None, stop_ev=None):
     """Rotating DNA double helix with shimmering base pairs."""
-    n, delay = _frame_range(duration, 24)
+    n, delay = _frame_range(duration, 30)
     for f in range(n):
         if _check_events(reload_ev, stop_ev):
             return
@@ -1182,7 +1182,7 @@ def fire_3d(device, duration=14, reload_ev=None, stop_ev=None):
 
 def fish_tank(device, duration=14, reload_ev=None, stop_ev=None):
     """Two fish swimming with tail wag and rising bubbles in an aquarium."""
-    n, delay = _frame_range(duration, 22)
+    n, delay = _frame_range(duration, 30)
     bubbles = []
     for _ in range(4):
         bubbles.append({
@@ -1243,7 +1243,7 @@ def fish_tank(device, duration=14, reload_ev=None, stop_ev=None):
 
 def tunnel_zoom(device, duration=14, reload_ev=None, stop_ev=None):
     """Infinite 3D wireframe tunnel zooming inward toward the viewer."""
-    n, delay = _frame_range(duration, 28)
+    n, delay = _frame_range(duration, 30)
     for f in range(n):
         if _check_events(reload_ev, stop_ev):
             return
@@ -1272,7 +1272,7 @@ def tunnel_zoom(device, duration=14, reload_ev=None, stop_ev=None):
 
 def domino_cascade(device, duration=14, reload_ev=None, stop_ev=None):
     """A wave of dominoes toppling across the screen."""
-    n, delay = _frame_range(duration, 28)
+    n, delay = _frame_range(duration, 30)
     spacing = 3
     dominoes = []
     for x in range(0, WIDTH + 6, spacing):
@@ -1306,7 +1306,7 @@ def domino_cascade(device, duration=14, reload_ev=None, stop_ev=None):
 
 def heart_beat(device, duration=14, reload_ev=None, stop_ev=None):
     """A heart that beats with a lub-dub rhythm and ECG line below."""
-    n, delay = _frame_range(duration, 24)
+    n, delay = _frame_range(duration, 30)
     HEART_BIG = [
         ".XXX.XX.",
         "XXXXXXX.",
@@ -1350,7 +1350,7 @@ def heart_beat(device, duration=14, reload_ev=None, stop_ev=None):
 
 def conway_life(device, duration=14, reload_ev=None, stop_ev=None):
     """Conway's Game of Life evolving on a 32x8 toroidal grid with random reseeding."""
-    n, delay = _frame_range(duration, 8)
+    n, delay = _frame_range(duration, 15)
     grid = [[1 if random.random() > 0.7 else 0 for _ in range(WIDTH)] for _ in range(HEIGHT)]
     for f in range(n):
         if _check_events(reload_ev, stop_ev):
@@ -1384,7 +1384,7 @@ def conway_life(device, duration=14, reload_ev=None, stop_ev=None):
 
 def dvd_bounce(device, duration=14, reload_ev=None, stop_ev=None):
     """A small logo box bouncing around the screen, changing color on each wall hit."""
-    n, delay = _frame_range(duration, 26)
+    n, delay = _frame_range(duration, 30)
     LOGO_W, LOGO_H = 4, 3
     x = 2.0
     y = 1.0
@@ -1437,13 +1437,11 @@ def dvd_bounce(device, duration=14, reload_ev=None, stop_ev=None):
 
 def clock_watch(device, duration=14, reload_ev=None, stop_ev=None):
     """An analog clock face with rotating hour, minute and second hands."""
-    n, delay = _frame_range(duration, 8)
+    n, delay = _frame_range(duration, 30)
     cx, cy = (WIDTH - 1) / 2.0, (HEIGHT - 1) / 2.0
-    start = time.time()
     for f in range(n):
         if _check_events(reload_ev, stop_ev):
             return
-        elapsed = time.time() - start
         now = datetime.now()
         sec_angle = (now.second + now.microsecond / 1e6) * (2 * math.pi / 60) - math.pi / 2
         min_angle = (now.minute + now.second / 60.0) * (2 * math.pi / 60) - math.pi / 2
