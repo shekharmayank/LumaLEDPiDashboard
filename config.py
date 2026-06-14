@@ -20,7 +20,7 @@ SPI_CONFIG = {
 
 ANIMATIONS = [
     "abstract_flow",
-    "pulse_moire",
+    "floating_embers",
     "random_unseen",
 ]
 
