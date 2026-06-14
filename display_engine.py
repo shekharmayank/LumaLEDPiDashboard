@@ -57,7 +57,6 @@ class DisplayEngine(Thread):
             elif t == "animation":
                 name = item["config"].get("name", "abstract_flow")
                 duration = item["duration"] or 14
-                self._show_animation_name(name)
                 anim = ANIM_FUNCS.get(name)
                 if anim:
                     anim(self.device, duration, self.reload, self.stop)
