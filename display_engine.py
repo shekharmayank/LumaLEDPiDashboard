@@ -93,16 +93,16 @@ class DisplayEngine(Thread):
             toggle = not toggle
             now = datetime.now()
             with canvas(self.device) as draw:
-                h, m = now.strftime("%H"), now.strftime("%M")
+                h, m, s = now.strftime("%H"), now.strftime("%M"), now.strftime("%S")
                 text(draw, (0, 1), h, fill="white", font=proportional(CP437_FONT))
                 col = ":" if toggle else " "
                 text(draw, (15, 1), col, fill="white", font=proportional(TINY_FONT))
                 text(draw, (17, 1), m, fill="white", font=proportional(CP437_FONT))
-                for _ in range(3):
-                    draw.point(
-                        (random.randint(0, WIDTH - 1), random.randint(0, HEIGHT - 1)),
-                        fill="white",
-                    )
+                sec_x = 29
+                sec_w = int((int(s) / 60.0) * 2)
+                for i in range(sec_w):
+                    if sec_x + i < WIDTH:
+                        draw.point((sec_x + i, 7), fill="white")
             time.sleep(0.5)
 
     def _show_date(self):
