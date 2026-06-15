@@ -232,10 +232,10 @@ def radar(device, duration=14, reload_ev=None, stop_ev=None):
     Radar emulator.
 
     Random pixels represent ships that are freshly placed before each
-    sweep. A thin, right-curved sweep block (like a closing parenthesis)
-    moves from left to right across the display. Ships light up for 1
-    second after the sweep passes over them, blinking rapidly during the
-    last moments before a new set of ships appears for the next sweep.
+    sweep. A 2-pixel-wide diamond-shaped sweep block moves from left to
+    right across the display. Ships light up for 1 second after the sweep
+    passes over them, blinking rapidly during the last moments before a
+    new set of ships appears for the next sweep.
     """
     def _make_ships():
         num_ships = random.randint(4, 7)
@@ -244,17 +244,21 @@ def radar(device, duration=14, reload_ev=None, stop_ev=None):
             ships.add((random.randint(0, WIDTH - 1), random.randint(0, HEIGHT - 1)))
         return list(ships)
 
-    def _curve_offset(y):
-        # Right-curved sweep like a closing parenthesis: left edge is
-        # straight and the right edge bulges outward in the middle rows.
-        return 1 if 2 <= y <= 5 else 0
+    def _curve_shift(y):
+        # Diamond-shaped sweep: each row is 2 pixels wide, but the middle
+        # rows are shifted to the right so the whole block forms a diamond.
+        if y in (0, 7):
+            return 0
+        if y in (1, 6):
+            return 1
+        return 2
 
     ships = _make_ships()
     lit = {}  # ship index -> timestamp when it should go dark
     n, delay = _frame_range(duration, 20)
     sweep_width = 2
     sweep_speed = 0.8  # pixels per frame
-    sweep_x = -sweep_width
+    sweep_x = -sweep_width - 2  # start far enough left for shifted middle rows
 
     for _ in range(n):
         if _check_events(reload_ev, stop_ev):
@@ -262,13 +266,13 @@ def radar(device, duration=14, reload_ev=None, stop_ev=None):
 
         sweep_x += sweep_speed
         if sweep_x > WIDTH:
-            sweep_x = -sweep_width
+            sweep_x = -sweep_width - 2
             lit.clear()
             ships = _make_ships()
 
         now = time.time()
         for i, (sx, sy) in enumerate(ships):
-            right_edge = sweep_x + sweep_width + _curve_offset(sy)
+            right_edge = sweep_x + _curve_shift(sy) + sweep_width
             if sx <= right_edge and i not in lit:
                 lit[i] = now + 1.0
 
@@ -284,11 +288,11 @@ def radar(device, duration=14, reload_ev=None, stop_ev=None):
                     else:
                         draw.point((sx, sy), fill="white")
 
-            # Draw right-curved sweep block like a closing parenthesis
-            start_x = int(sweep_x)
-            base_end = int(sweep_x + sweep_width)
+            # Draw diamond-shaped sweep block
             for y in range(HEIGHT):
-                end_x = base_end + _curve_offset(y)
+                shift = _curve_shift(y)
+                start_x = int(sweep_x + shift)
+                end_x = int(sweep_x + shift + sweep_width)
                 for x in range(start_x, end_x + 1):
                     if 0 <= x < WIDTH:
                         draw.point((x, y), fill="white")
