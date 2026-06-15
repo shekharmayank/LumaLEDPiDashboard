@@ -231,20 +231,27 @@ def radar(device, duration=14, reload_ev=None, stop_ev=None):
     """
     Radar emulator.
 
-    Random pixels represent ships. A thin sweep block moves quickly from
-    left to right across the display. Ships light up for 1 second after
-    the sweep passes over them, and the sweep repeats with a fresh scan.
+    Random pixels represent ships that are freshly placed before each
+    sweep. A thin, slightly curved sweep block moves from left to right
+    across the display. Ships light up for 1 second after the sweep passes
+    over them, then a new set of ships appears for the next sweep.
     """
-    num_ships = random.randint(4, 7)
-    ships = set()
-    while len(ships) < num_ships:
-        ships.add((random.randint(0, WIDTH - 1), random.randint(0, HEIGHT - 1)))
-    ships = list(ships)
+    def _make_ships():
+        num_ships = random.randint(4, 7)
+        ships = set()
+        while len(ships) < num_ships:
+            ships.add((random.randint(0, WIDTH - 1), random.randint(0, HEIGHT - 1)))
+        return list(ships)
 
+    def _curve_offset(y):
+        # Middle rows bulge slightly forward for a subtle curved sweep.
+        return 1 if 2 <= y <= 5 else 0
+
+    ships = _make_ships()
     lit = {}  # ship index -> timestamp when it should go dark
     n, delay = _frame_range(duration, 20)
     sweep_width = 2
-    sweep_speed = 1.0  # pixels per frame
+    sweep_speed = 0.8  # pixels per frame
     sweep_x = -sweep_width
 
     for _ in range(n):
@@ -255,10 +262,11 @@ def radar(device, duration=14, reload_ev=None, stop_ev=None):
         if sweep_x > WIDTH:
             sweep_x = -sweep_width
             lit.clear()
+            ships = _make_ships()
 
         now = time.time()
-        right_edge = sweep_x + sweep_width
         for i, (sx, sy) in enumerate(ships):
+            right_edge = sweep_x + sweep_width + _curve_offset(sy)
             if sx <= right_edge and i not in lit:
                 lit[i] = now + 1.0
 
@@ -268,12 +276,13 @@ def radar(device, duration=14, reload_ev=None, stop_ev=None):
                 if lit.get(i, 0) > now:
                     draw.point((sx, sy), fill="white")
 
-            # Draw sweep block
+            # Draw curved sweep block
             start_x = int(sweep_x)
-            end_x = int(sweep_x + sweep_width)
-            for x in range(start_x, end_x + 1):
-                if 0 <= x < WIDTH:
-                    for y in range(HEIGHT):
+            base_end = int(sweep_x + sweep_width)
+            for y in range(HEIGHT):
+                end_x = base_end + _curve_offset(y)
+                for x in range(start_x, end_x + 1):
+                    if 0 <= x < WIDTH:
                         draw.point((x, y), fill="white")
 
         time.sleep(delay)
