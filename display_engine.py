@@ -231,9 +231,9 @@ def radar(device, duration=14, reload_ev=None, stop_ev=None):
     """
     Radar emulator.
 
-    Random pixels represent ships. A full-height sweep block moves left to
-    right across the display. Ships light up for 1 second after the sweep
-    passes over them, then the sweep repeats.
+    Random pixels represent ships. A thin sweep block moves quickly from
+    left to right across the display. Ships light up for 1 second after
+    the sweep passes over them, and the sweep repeats with a fresh scan.
     """
     num_ships = random.randint(4, 7)
     ships = set()
@@ -243,8 +243,8 @@ def radar(device, duration=14, reload_ev=None, stop_ev=None):
 
     lit = {}  # ship index -> timestamp when it should go dark
     n, delay = _frame_range(duration, 20)
-    sweep_width = 4
-    sweep_speed = 0.5  # pixels per frame
+    sweep_width = 2
+    sweep_speed = 1.0  # pixels per frame
     sweep_x = -sweep_width
 
     for _ in range(n):
@@ -254,6 +254,7 @@ def radar(device, duration=14, reload_ev=None, stop_ev=None):
         sweep_x += sweep_speed
         if sweep_x > WIDTH:
             sweep_x = -sweep_width
+            lit.clear()
 
         now = time.time()
         right_edge = sweep_x + sweep_width
