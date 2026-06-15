@@ -245,20 +245,16 @@ def radar(device, duration=14, reload_ev=None, stop_ev=None):
         return list(ships)
 
     def _curve_shift(y):
-        # Diamond-shaped sweep: each row is 2 pixels wide, but the middle
-        # rows are shifted to the right so the whole block forms a diamond.
-        if y in (0, 7):
-            return 0
-        if y in (1, 6):
-            return 1
-        return 2
+        # Thinner diamond-shaped sweep: each row is 2 pixels wide, with
+        # all non-edge rows shifted by 1 to remove one vertical pixel line.
+        return 0 if y in (0, 7) else 1
 
     ships = _make_ships()
     lit = {}  # ship index -> timestamp when it should go dark
     n, delay = _frame_range(duration, 20)
     sweep_width = 2
     sweep_speed = 0.8  # pixels per frame
-    sweep_x = -sweep_width - 2  # start far enough left for shifted middle rows
+    sweep_x = -sweep_width - 1  # start far enough left for shifted rows
 
     for _ in range(n):
         if _check_events(reload_ev, stop_ev):
@@ -266,7 +262,7 @@ def radar(device, duration=14, reload_ev=None, stop_ev=None):
 
         sweep_x += sweep_speed
         if sweep_x > WIDTH:
-            sweep_x = -sweep_width - 2
+            sweep_x = -sweep_width - 1
             lit.clear()
             ships = _make_ships()
 
