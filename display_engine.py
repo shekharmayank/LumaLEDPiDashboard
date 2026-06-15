@@ -256,7 +256,7 @@ def radar(device, duration=14, reload_ev=None, stop_ev=None):
     ships = _make_ships()
     lit = {}  # ship index -> timestamp when it should go dark
     n, delay = _frame_range(duration, 20)
-    sweep_width = 2
+    sweep_width = 1
     sweep_speed = 0.8  # pixels per frame
     sweep_x = -sweep_width - 2  # start far enough left for shifted middle rows
 
