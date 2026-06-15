@@ -222,7 +222,64 @@ def serpentine(device, duration=14, reload_ev=None, stop_ev=None):
         time.sleep(delay)
 
 
+# =====================================================================
+# RADAR ANIMATION
+# =====================================================================
+
+
+def radar(device, duration=14, reload_ev=None, stop_ev=None):
+    """
+    Radar emulator.
+
+    Random pixels represent ships. A full-height sweep block moves left to
+    right across the display. Ships light up for 1 second after the sweep
+    passes over them, then the sweep repeats.
+    """
+    num_ships = random.randint(4, 7)
+    ships = set()
+    while len(ships) < num_ships:
+        ships.add((random.randint(0, WIDTH - 1), random.randint(0, HEIGHT - 1)))
+    ships = list(ships)
+
+    lit = {}  # ship index -> timestamp when it should go dark
+    n, delay = _frame_range(duration, 20)
+    sweep_width = 4
+    sweep_speed = 0.5  # pixels per frame
+    sweep_x = -sweep_width
+
+    for _ in range(n):
+        if _check_events(reload_ev, stop_ev):
+            return
+
+        sweep_x += sweep_speed
+        if sweep_x > WIDTH:
+            sweep_x = -sweep_width
+
+        now = time.time()
+        right_edge = sweep_x + sweep_width
+        for i, (sx, sy) in enumerate(ships):
+            if sx <= right_edge and i not in lit:
+                lit[i] = now + 1.0
+
+        with canvas(device) as draw:
+            # Draw lit ships
+            for i, (sx, sy) in enumerate(ships):
+                if lit.get(i, 0) > now:
+                    draw.point((sx, sy), fill="white")
+
+            # Draw sweep block
+            start_x = int(sweep_x)
+            end_x = int(sweep_x + sweep_width)
+            for x in range(start_x, end_x + 1):
+                if 0 <= x < WIDTH:
+                    for y in range(HEIGHT):
+                        draw.point((x, y), fill="white")
+
+        time.sleep(delay)
+
+
 ANIM_FUNCS = {
     "abstract_flow": abstract_flow,
     "serpentine": serpentine,
+    "radar": radar,
 }
