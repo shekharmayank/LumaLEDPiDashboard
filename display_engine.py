@@ -232,10 +232,10 @@ def radar(device, duration=14, reload_ev=None, stop_ev=None):
     Radar emulator.
 
     Random pixels represent ships that are freshly placed before each
-    sweep. A thin, symmetrically curved sweep block moves from left to
-    right across the display. Ships light up for 1 second after the sweep
-    passes over them, blinking rapidly during the last moments before a
-    new set of ships appears for the next sweep.
+    sweep. A thin, right-curved sweep block (like a closing parenthesis)
+    moves from left to right across the display. Ships light up for 1
+    second after the sweep passes over them, blinking rapidly during the
+    last moments before a new set of ships appears for the next sweep.
     """
     def _make_ships():
         num_ships = random.randint(4, 7)
@@ -244,13 +244,10 @@ def radar(device, duration=14, reload_ev=None, stop_ev=None):
             ships.add((random.randint(0, WIDTH - 1), random.randint(0, HEIGHT - 1)))
         return list(ships)
 
-    def _row_width(y):
-        # Symmetric curve: middle rows wider, top/bottom rows narrower.
-        if y in (0, 7):
-            return 1
-        if y in (1, 6):
-            return 2
-        return 3
+    def _curve_offset(y):
+        # Right-curved sweep like a closing parenthesis: left edge is
+        # straight and the right edge bulges outward in the middle rows.
+        return 1 if 2 <= y <= 5 else 0
 
     ships = _make_ships()
     lit = {}  # ship index -> timestamp when it should go dark
@@ -271,9 +268,7 @@ def radar(device, duration=14, reload_ev=None, stop_ev=None):
 
         now = time.time()
         for i, (sx, sy) in enumerate(ships):
-            center = sweep_x + sweep_width / 2.0
-            half = _row_width(sy) / 2.0
-            right_edge = center + half
+            right_edge = sweep_x + sweep_width + _curve_offset(sy)
             if sx <= right_edge and i not in lit:
                 lit[i] = now + 1.0
 
@@ -289,13 +284,12 @@ def radar(device, duration=14, reload_ev=None, stop_ev=None):
                     else:
                         draw.point((sx, sy), fill="white")
 
-            # Draw symmetrically curved sweep block
-            center = sweep_x + sweep_width / 2.0
+            # Draw right-curved sweep block like a closing parenthesis
+            start_x = int(sweep_x)
+            base_end = int(sweep_x + sweep_width)
             for y in range(HEIGHT):
-                half = _row_width(y) / 2.0
-                left = int(round(center - half))
-                right = int(round(center + half))
-                for x in range(left, right + 1):
+                end_x = base_end + _curve_offset(y)
+                for x in range(start_x, end_x + 1):
                     if 0 <= x < WIDTH:
                         draw.point((x, y), fill="white")
 
