@@ -97,6 +97,10 @@ class DisplayEngine(Thread):
     def _show_time(self, duration):
         end = time.time() + duration
         toggle = False
+        # Rendered time (HH + tiny colon + MM) measures 31x7 pixels,
+        # so center it in the 32x8 display.
+        time_x = (WIDTH - 31) // 2
+        time_y = (HEIGHT - 7) // 2
         while time.time() < end:
             if self._should_reload() or self._should_stop():
                 return
@@ -104,10 +108,10 @@ class DisplayEngine(Thread):
             now = datetime.now()
             with canvas(self.device) as draw:
                 h, m = now.strftime("%H"), now.strftime("%M")
-                text(draw, (0, 1), h, fill="white", font=proportional(CP437_FONT))
+                text(draw, (time_x, time_y), h, fill="white", font=proportional(CP437_FONT))
                 col = ":" if toggle else " "
-                text(draw, (15, 1), col, fill="white", font=proportional(TINY_FONT))
-                text(draw, (17, 1), m, fill="white", font=proportional(CP437_FONT))
+                text(draw, (time_x + 15, time_y), col, fill="white", font=proportional(TINY_FONT))
+                text(draw, (time_x + 17, time_y), m, fill="white", font=proportional(CP437_FONT))
             time.sleep(0.5)
 
     def _show_date(self):
